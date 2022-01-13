@@ -8,7 +8,8 @@ const WorkoutSchema = new Schema({
   duration: Number,
   weight: Number,
   reps: Number,
-  sets: Number
+  sets: Number,
+  distance: Number,
 });
 
 const Workout = mongoose.model("Workout", WorkoutSchema);

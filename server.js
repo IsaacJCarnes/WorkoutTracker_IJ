@@ -26,7 +26,6 @@ app.get("/exercise", (req, res) => {
   res.sendFile(__dirname + "/public/exercise.html");
 });
 
-//Workouts contains all Workout objects
 app.get("/api/workouts", (req, res) => { //Get last workout
   db.Workout.find({}).sort({_id:-1}).limit(1)
   .then(dbWorkout => {
@@ -38,23 +37,29 @@ app.get("/api/workouts", (req, res) => { //Get last workout
   });
 });
 
-app.put("/api/workouts/:id", ({body}, res) => { //Create and Add new Workout to Workouts
-  db.Workout.create(body)
-    .then(({_id}) => db.Workout.findOneAndUpdate({}, { $push: { workout: _id } }, { new: true }))
+app.put("/api/workouts/:id", (req, res) => { //Create and Add new Workout to Workouts
+  db.Workout.findByIdAndUpdate(req.params.id, {$push: {exercises: req.body}})
     .then(dbWorkout => {
+      console.log(dbWorkout);
       res.json(dbWorkout);
     })
     .catch(err => {
       res.json(err);
-    });
+    })
 });
 
 app.post("/api/workouts", ({body}, res) => { //Create new workout
-   
+  db.Workout.create(body)
+  .then(dbWorkout => {
+    res.json(dbWorkout);
+  })
+  .catch(err => {
+    res.json(err);
+  });
 });
 
 app.get("/api/workouts/range", (req, res) => {
-  db.Workout.find({})
+  db.Workout.find()
     .then(dbWorkout => {
       res.json(dbWorkout);
     })

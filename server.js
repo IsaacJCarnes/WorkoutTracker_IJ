@@ -27,18 +27,18 @@ app.get("/exercise", (req, res) => {
 });
 
 app.get("/api/workouts", (req, res) => { //Get last workout
-  db.Workout.find({}).sort({_id:-1}).limit(1)
-  .then(dbWorkout => {
-    console.log(dbWorkout);
-    res.json(dbWorkout);
-  })
-  .catch(err => {
-    res.json(err);
-  });
+  db.Workout.find({}).sort({ day: -1 }).limit(1)
+    .then(dbWorkout => {
+      console.log(dbWorkout);
+      res.json(dbWorkout);
+    })
+    .catch(err => {
+      res.json(err);
+    });
 });
 
 app.put("/api/workouts/:id", (req, res) => { //Create and Add new Workout to Workouts
-  db.Workout.findByIdAndUpdate(req.params.id, {$push: {exercises: req.body}})
+  db.Workout.findByIdAndUpdate(req.params.id, {$push: {exercises: req.body}}, {new : true})
     .then(dbWorkout => {
       console.log(dbWorkout);
       res.json(dbWorkout);
@@ -48,24 +48,28 @@ app.put("/api/workouts/:id", (req, res) => { //Create and Add new Workout to Wor
     })
 });
 
-app.post("/api/workouts", ({body}, res) => { //Create new workout
+app.post("/api/workouts", (req, res) => { //Create new workout
+  console.log(req.body);
+  let body = req.body;
   db.Workout.create(body)
   .then(dbWorkout => {
     res.json(dbWorkout);
   })
   .catch(err => {
+    console.log(err);
     res.json(err);
   });
 });
 
 app.get("/api/workouts/range", (req, res) => {
-  db.Workout.find()
-    .then(dbWorkout => {
-      res.json(dbWorkout);
-    })
-    .catch(err => {
-      res.json(err);
-    });
+  db.Workout.find({}).sort({ day:-1}).limit(7)
+  .then(dbWorkout => {
+    console.log(dbWorkout);
+    res.json(dbWorkout);
+  })
+  .catch(err => {
+    res.json(err);
+  });
 });
 
 app.listen(PORT, () => {

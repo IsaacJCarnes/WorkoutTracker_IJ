@@ -16,7 +16,11 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/populate", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workout", 
+{ useNewUrlParser: true, 
+useUnifiedTopology: true,
+useCreateIndex: true,
+useFindAndModify: false });
 
 app.get("/stats", (req, res) => {
   res.sendFile(__dirname + "/public/stats.html");
@@ -37,7 +41,10 @@ app.get("/api/workouts", (req, res) => { //Get last workout
     });
 });
 
-app.put("/api/workouts/:id", (req, res) => { //Create and Add new Workout to Workouts
+app.put("/api/workouts/:id", (req, res) => { //Create and add new exercise to workout
+  if(req.body.name == ""){ //Catch empty object
+    res.json("Can't make empty object.");
+  }
   db.Workout.findByIdAndUpdate(req.params.id, {$push: {exercises: req.body}}, {new : true})
     .then(dbWorkout => {
       console.log(dbWorkout);
@@ -49,7 +56,6 @@ app.put("/api/workouts/:id", (req, res) => { //Create and Add new Workout to Wor
 });
 
 app.post("/api/workouts", (req, res) => { //Create new workout
-  console.log(req.body);
   let body = req.body;
   db.Workout.create(body)
   .then(dbWorkout => {
@@ -61,10 +67,9 @@ app.post("/api/workouts", (req, res) => { //Create new workout
   });
 });
 
-app.get("/api/workouts/range", (req, res) => {
+app.get("/api/workouts/range", (req, res) => { //Find last 7 workouts
   db.Workout.find({}).sort({ day:-1}).limit(7)
   .then(dbWorkout => {
-    console.log(dbWorkout);
     res.json(dbWorkout);
   })
   .catch(err => {
